@@ -1,34 +1,33 @@
-# app.py
-from flask import Flask, request, render_template
+from flask import Flask, render_template, request, jsonify
 import pickle
 import numpy as np
 
-# Initialize Flask app
-app = Flask(__name__)
-
-# Load the pre-trained XGBoost model
+# Load the trained model
 with open('best_xgb_model.pkl', 'rb') as f:
     model = pickle.load(f)
 
-# Home route to display the HTML form
-@app.route('/')
-def home():
-    return render_template('index.html')
+app = Flask(__name__)
 
-# Prediction route
-@app.route('/predict', methods=['POST'])
-def predict():
-    if request.method == 'POST':
-        # Get user input from the form
-        total_cases = int(request.form['total_cases'])
-        total_deaths = int(request.form['total_deaths'])
-        days_since_start = int(request.form['days_since_start'])
+@app.route("/", methods=["GET", "POST"])
+def index():
+    prediction = None
+    if request.method == "POST":
+        try:
+            # Get data from form
+            total_cases = float(request.form["total_cases"])
+            total_deaths = float(request.form["total_deaths"])
+            days_since_start = float(request.form["days_since_start"])
 
-        # Predict the CFR
-        input_data = np.array([[total_cases, total_deaths, days_since_start]])
-        predicted_cfr = model.predict(input_data)[0]
+            # Create input array
+            input_data = np.array([[total_cases, total_deaths, days_since_start]])
 
-        return render_template('index.html', prediction_text=f"Predicted CFR: {predicted_cfr:.4f}")
+            # Make prediction
+            prediction = model.predict(input_data)[0]
+            prediction = round(prediction, 4)  # Round for better display
+        except ValueError:
+            prediction = "Invalid input! Please enter numerical values."
+    
+    return render_template("index.html", prediction=prediction)
 
 if __name__ == "__main__":
     app.run(debug=True)

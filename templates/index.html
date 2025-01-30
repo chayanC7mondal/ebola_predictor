@@ -1,48 +1,111 @@
-<!-- templates/index.html -->
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='style.css') }}"
-    />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ebola CFR Predictor</title>
+    
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    <title>CFR Prediction</title>
-  </head>
-  <body>
-    <h2>CFR Prediction</h2>
-    <form method="POST" action="/predict">
-      <label for="total_cases">Total Cases:</label><br />
-      <input
-        type="text"
-        id="total_cases"
-        name="total_cases"
-        required
-      /><br /><br />
+    <style>
+        /* Fullscreen background video */
+        .video-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+        .video-container video {
+            min-width: 100%;
+            min-height: 100%;
+            object-fit: cover;
+        }
 
-      <label for="total_deaths">Total Deaths:</label><br />
-      <input
-        type="text"
-        id="total_deaths"
-        name="total_deaths"
-        required
-      /><br /><br />
+        /* Translucent form styling */
+        .form-container {
+            background: rgba(255, 255, 255, 0.2); /* Translucent white */
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(8px); /* Blurred background */
+        }
 
-      <label for="days_since_start">Days Since Start:</label><br />
-      <input
-        type="text"
-        id="days_since_start"
-        name="days_since_start"
-        required
-      /><br /><br />
+        /* Improve text contrast */
+        h2, label, p {
+            color: white;
+            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+        }
+        .alert {
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(5px);
+            border: none;
+            color: #fff;
+            font-weight: bold;
+        }
+        .loading p {
+            color: white;
+        }
+    </style>
+</head>
+<body>
 
-      <input type="submit" value="Predict" />
-    </form>
+    <!-- Background Video -->
+    <div class="video-container">
+        <video autoplay loop muted>
+            <source src="{{ url_for('static', filename='background.mp4') }}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
 
-    {% if prediction_text %}
-    <h3>{{ prediction_text }}</h3>
-    {% endif %}
-  </body>
+    <!-- Form Container -->
+    <div class="container text-center d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+        <div class="form-container col-md-5 p-4">
+            <h2 class="mb-4">Ebola CFR Predictor</h2>
+            <form id="predictionForm" method="POST">
+                <div class="mb-3">
+                    <label class="form-label">Total Cases</label>
+                    <input type="number" step="any" class="form-control" name="total_cases" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Total Deaths</label>
+                    <input type="number" step="any" class="form-control" name="total_deaths" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Days Since Start</label>
+                    <input type="number" step="any" class="form-control" name="days_since_start" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Predict CFR</button>
+            </form>
+
+            <!-- Loading Animation -->
+            <div class="loading mt-3" style="display: none;">
+                <div class="spinner-border text-light" role="status"></div>
+                <p>Predicting...</p>
+            </div>
+
+            <!-- Prediction Result -->
+            {% if prediction is not none %}
+                <div class="alert mt-3">
+                    <strong>Predicted CFR:</strong> {{ prediction }}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $("#predictionForm").on("submit", function() {
+                $(".loading").show();
+            });
+        });
+    </script>
+
+</body>
 </html>
