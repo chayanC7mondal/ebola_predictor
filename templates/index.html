@@ -1,0 +1,48 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+
+    <title>CFR Prediction</title>
+  </head>
+  <body>
+    <h2>CFR Prediction</h2>
+    <form method="POST" action="/predict">
+      <label for="total_cases">Total Cases:</label><br />
+      <input
+        type="text"
+        id="total_cases"
+        name="total_cases"
+        required
+      /><br /><br />
+
+      <label for="total_deaths">Total Deaths:</label><br />
+      <input
+        type="text"
+        id="total_deaths"
+        name="total_deaths"
+        required
+      /><br /><br />
+
+      <label for="days_since_start">Days Since Start:</label><br />
+      <input
+        type="text"
+        id="days_since_start"
+        name="days_since_start"
+        required
+      /><br /><br />
+
+      <input type="submit" value="Predict" />
+    </form>
+
+    {% if prediction_text %}
+    <h3>{{ prediction_text }}</h3>
+    {% endif %}
+  </body>
+</html>
